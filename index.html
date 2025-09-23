@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayVid - Play Terabox Videos Directly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Code */
+        :root {
+            --background-color: #0d0c22;
+            --primary-glow: rgba(94, 0, 251, 0.4);
+            --secondary-glow: rgba(251, 0, 159, 0.4);
+            --text-color: #ffffff;
+            --text-color-secondary: #a9a4c1;
+            --button-bg-start: #ffae00;
+            --button-bg-end: #ff6800;
+            --input-bg: rgba(255, 255, 255, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--text-color); overflow-x: hidden; background-image: radial-gradient(circle at 10% 20%, var(--primary-glow), transparent 40%), radial-gradient(circle at 90% 80%, var(--secondary-glow), transparent 40%); }
+        .main-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { padding: 2rem 0; }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo-text { font-size: 1.8rem; font-weight: 700; }
+        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links a { color: var(--text-color-secondary); text-decoration: none; transition: color 0.3s ease; }
+        .nav-links a:hover { color: var(--text-color); }
+        .hero { display: flex; align-items: center; gap: 2rem; padding: 2rem 0; min-height: 70vh; }
+        .hero-content { flex: 1; }
+        .animated-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 700; line-height: 1.2; background: linear-gradient(90deg, #c786ff, #a18cff, #84c1ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; animation: fadeInDown 1s ease-out; }
+        .hero-content p { font-size: 1.1rem; color: var(--text-color-secondary); margin-bottom: 2.5rem; max-width: 500px; animation: fadeInUp 1s ease-out 0.3s; animation-fill-mode: backwards; }
+        .input-area { display: flex; gap: 10px; animation: fadeInUp 1s ease-out 0.6s; animation-fill-mode: backwards; }
+        #terabox-link { flex-grow: 1; border: 1px solid rgba(255, 255, 255, 0.2); background: var(--input-bg); padding: 15px 20px; border-radius: 50px; color: var(--text-color); font-size: 1rem; outline: none; }
+        #terabox-link:focus { border-color: var(--button-bg-start); }
+        #terabox-link::placeholder { color: var(--text-color-secondary); }
+        #play-btn { border: none; background: linear-gradient(90deg, var(--button-bg-start), var(--button-bg-end)); color: white; padding: 15px 35px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; font-size: 1rem; }
+        #play-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 120, 0, 0.3); }
+        .loader { border: 4px solid var(--input-bg); border-top: 4px solid var(--button-bg-start); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px 0 0 10px; }
+        .error-message { color: #ff6b81; margin-top: 1rem; font-weight: 600; }
+        .video-container { padding: 3rem 0; }
+        #video-player { width: 100%; border-radius: 15px; background-color: #000; outline: none; max-height: 70vh; }
+        
+        /* === विज्ञापन के लिए CSS === */
+        .ad-container { margin: 25px auto; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .mobile-ad { display: none; } /* मोबाइल विज्ञापन को डिफ़ॉल्ट रूप से छिपाएं */
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero { flex-direction: column; text-align: center; }
+            .hero-content p { margin-left: auto; margin-right: auto; }
+            .input-area { flex-direction: column; }
+            .desktop-ad { display: none; } /* डेस्कटॉप पर मोबाइल विज्ञापन छिपाएं */
+            .mobile-ad { display: block; } /* मोबाइल पर मोबाइल विज्ञापन दिखाएं */
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header>
+            <nav>
+                <div class="logo"><span class="logo-text">PlayVid</span></div>
+                <ul class="nav-links">
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Features</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <!-- ================================================================== -->
+            <!-- विज्ञापन स्थान 1: सबसे ऊपर (Top Banner) -->
+            <!-- ================================================================== -->
+            
+            <!-- डेस्कटॉप विज्ञापन (728x90) -->
+            <div class="ad-container desktop-ad" style="width: 728px; height: 90px;">
+                <script type="text/javascript">
+	atOptions = {
+		'key' : '7d7903b52564671f32b463d441868327',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/7d7903b52564671f32b463d441868327/invoke.js"></script>
+            </div>
+
+            <!-- मोबाइल विज्ञापन (320x50) -->
+            <div class="ad-container mobile-ad" style="width: 320px; height: 50px;">
+                <script type="text/javascript">
+	atOptions = {
+		'key' : '5cd83c6a2c67e5a22768ba58344ac85c',
+		'format' : 'iframe',
+		'height' : 50,
+		'width' : 320,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/5cd83c6a2c67e5a22768ba58344ac85c/invoke.js"></script>
+            </div>
+
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="animated-title">Play Terabox Videos Instantly</h1>
+                    <p>Just paste any public Terabox video link to stream it directly in the browser without any hassle. Simple, fast, and free.</p>
+                    <div class="input-area">
+                        <input type="text" id="terabox-link" placeholder="Paste Terabox Link Here">
+                        <button id="play-btn"><span class="btn-text">Play Video</span></button>
+                    </div>
+                    <div id="loader" class="loader" style="display: none;"></div>
+                    <p id="error-message" class="error-message"></p>
+                </div>
+            </section>
+
+            <section id="video-container" class="video-container" style="display: none;">
+                <video id="video-player" controls preload="metadata"></video>
+                
+                <!-- ================================================================== -->
+                <!-- विज्ञापन स्थान 2: वीडियो के नीचे (Below Video Player) -->
+                <!-- ================================================================== -->
+                <div class="ad-container" style="width: 300px; height: 250px;">
+                    <script type="text/javascript">
+	atOptions = {
+		'key' : '7df878c466e1b9d118b5469663672c57',
+		'format' : 'iframe',
+		'height' : 250,
+		'width' : 300,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/7df878c466e1b9d118b5469663672c57/invoke.js"></script>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // JavaScript Code
+        document.addEventListener('DOMContentLoaded', () => {
+            const playBtn = document.getElementById('play-btn');
+            const teraboxLinkInput = document.getElementById('terabox-link');
+            const videoPlayer = document.getElementById('video-player');
+            const videoContainer = document.getElementById('video-container');
+            const loader = document.getElementById('loader');
+            const errorMessage = document.getElementById('error-message');
+            playBtn.addEventListener('click', async () => {
+                const teraboxLink = teraboxLinkInput.value.trim();
+                if (!teraboxLink || !isValidUrl(teraboxLink)) { showError('Please paste a valid Terabox link.'); return; }
+                showLoader(true);
+                hideError();
+                videoContainer.style.display = 'none';
+                try {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(teraboxLink)}`;
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) { throw new Error(`Failed to fetch content. Status: ${response.status}`); }
+                    const pageContent = await response.text();
+                    const videoUrl = findVideoUrl(pageContent);
+                    if (videoUrl) { playVideo(videoUrl); } 
+                    else { throw new Error('Could not find a playable video URL. The link might be invalid, private, or the format is not supported.'); }
+                } catch (error) { console.error('Fetch Error:', error); showError(error.message); } 
+                finally { showLoader(false); }
+            });
+            function findVideoUrl(htmlContent) {
+                const patterns = [/"dlink":"(.*?)"/, /"resolved_link":"(.*?)"/, /<video.*?src=["'](.*?)["']/];
+                for (const pattern of patterns) {
+                    const match = htmlContent.match(pattern);
+                    if (match && match[1]) { return match[1].replace(/\\/g, ''); }
+                }
+                return null;
+            }
+            function playVideo(videoUrl) {
+                videoContainer.style.display = 'block';
+                videoPlayer.src = videoUrl;
+                videoPlayer.play();
+                videoPlayer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            function isValidUrl(string) { try { new URL(string); return true; } catch (_) { return false; } }
+            const showLoader = (show) => loader.style.display = show ? 'block' : 'none';
+            const showError = (message) => errorMessage.textContent = `Error: ${message}`;
+            const hideError = () => errorMessage.textContent = '';
+        });
+    </script>
+</body>
+</html>
